@@ -4,7 +4,7 @@
 	branch = behavior
 [submodule "baselines/il_lib"]
 	path = baselines/il_lib
-	url = https://github.com/wensi-ai/il_lib.git
+	url = https://github.com/liujiahao2077/il_lib.git
 	branch = main
 [submodule "baselines/openvla-oft"]
 	path = baselines/openvla-oft
