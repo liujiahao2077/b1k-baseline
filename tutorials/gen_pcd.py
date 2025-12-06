@@ -31,6 +31,27 @@ for local_idx in local_demo_indices:
     print(f"--------------------------------------------------")
     print(f"[Running] 正在处理 Task {task_id} - Demo {demo_id} (Local Index: {local_idx})")
 
+    output_hdf5_path = os.path.join(
+        data_path, 
+        "pcd_vid", 
+        f"task-{task_id:04d}", 
+        f"episode_{demo_id:08d}.hdf5"
+    )
+
+    # 检查输出文件是否存在且有效
+    if os.path.exists(output_hdf5_path):
+        try:
+            # 尝试打开文件检查是否完好
+            with h5py.File(output_hdf5_path, "r") as f:
+                # 检查关键数据是否存在
+                if "data/demo_0/robot_r1::fused_pcd" in f:
+                    print(f"[Skip] {output_hdf5_path} 已存在且有效，跳过。")
+                    continue
+                else:
+                    print(f"[Warn] {output_hdf5_path} 存在但在缺少关键key，将重新生成。")
+        except OSError:
+            print(f"[Warn] {output_hdf5_path} 存在但已损坏，将重新生成。")
+
     try:
         # 3. 执行转换
         rgbd_vid_to_pcd(
@@ -44,7 +65,7 @@ for local_idx in local_demo_indices:
         )
         print(f"[Success] Demo {demo_id} 处理成功。")
 
-        f_pcd_vid = h5py.File(f"{data_path}/pcd_vid/task-{task_id:04d}/episode_{demo_id:08d}.hdf5", "r", libver="latest", swmr=True)
+        f_pcd_vid = h5py.File(output_hdf5_path, "r", libver="latest", swmr=True)
         pcd_vid = f_pcd_vid["data/demo_0/robot_r1::fused_pcd"][:]
         print(pcd_vid.shape)
 
